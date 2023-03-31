@@ -1,0 +1,13 @@
+{
+    "extends": "solhint:recommended",
+    "plugins": ["prettier"],
+    "rules": {
+        "prettier/prettier": "warn",
+        "compiler-version": ["error", "^0.8.9"],
+        "func-visibility": ["warn", { "ignoreConstructors": true }],
+        "quotes": ["off"],
+        "not-rely-on-time": "off",
+        "private-vars-leading-underscore": ["warn", { "strict": false }],
+        "reason-string": ["warn",{"maxLength":32}]
+    }
+  }

@@ -1,0 +1,17 @@
+
+artifacts
+cache
+coverage*
+gasReporterOutput.json
+package.json
+img
+.env
+.*
+README.md
+coverage.json
+deployments
+typechain-types
+# JS
+node_modules
+package-lock.json
+yarn.lock

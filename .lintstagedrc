@@ -1,0 +1,6 @@
+{
+    '*.{js,ts}': ['eslint --fix', 'eslint'],
+    "*.{css,md,sol}": "prettier --write",
+    "*.sol": "cross-env solhint --fix 'solidity/**/*.sol'",
+    "package.json": "sort-package-json"
+}
