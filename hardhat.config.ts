@@ -10,6 +10,8 @@ import 'solidity-coverage';
 import 'hardhat-deploy';
 import 'hardhat-gas-reporter';
 import 'hardhat-contract-sizer';
+import 'hardhat-abi-exporter';
+import '@openzeppelin/hardhat-upgrades';
 
 dotenv.config();
 

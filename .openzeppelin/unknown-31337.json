@@ -1,0 +1,288 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "txHash": "0xd2fab219868bf7ac6496fef7541b6d82d013b1f72c096c50030aabc3dff424b3",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "916593da7f75953483b2d81963099acdf7e5c2833f905545b336f5b04d441445": {
+      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "txHash": "0x2583b68ceb5569ea1c4a5395486b6862a665ccf4c382303506a38c90712a66b5",
+      "layout": {
+        "solcVersion": "0.8.9",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:80"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "admin",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_address",
+            "contract": "Salary",
+            "src": "contracts/Salary.sol:17"
+          },
+          {
+            "label": "_employee",
+            "offset": 0,
+            "slot": "252",
+            "type": "t_mapping(t_address,t_struct(Employee)3101_storage)",
+            "contract": "Salary",
+            "src": "contracts/Salary.sol:18"
+          },
+          {
+            "label": "_checkinInfo",
+            "offset": 0,
+            "slot": "253",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_struct(CheckInDay)3124_storage))",
+            "contract": "Salary",
+            "src": "contracts/Salary.sol:19"
+          },
+          {
+            "label": "checkInTimeBuffer",
+            "offset": 0,
+            "slot": "254",
+            "type": "t_uint256",
+            "contract": "Salary",
+            "src": "contracts/Salary.sol:20"
+          },
+          {
+            "label": "checkOutTimeBuffer",
+            "offset": 0,
+            "slot": "255",
+            "type": "t_uint256",
+            "contract": "Salary",
+            "src": "contracts/Salary.sol:21"
+          },
+          {
+            "label": "checkInConfig",
+            "offset": 0,
+            "slot": "256",
+            "type": "t_struct(TimeConfig)3115_storage",
+            "contract": "Salary",
+            "src": "contracts/Salary.sol:22"
+          },
+          {
+            "label": "checkOutConfig",
+            "offset": 0,
+            "slot": "260",
+            "type": "t_struct(TimeConfig)3115_storage",
+            "contract": "Salary",
+            "src": "contracts/Salary.sol:23"
+          },
+          {
+            "label": "maxChangeWorkkingDays",
+            "offset": 0,
+            "slot": "264",
+            "type": "t_uint256",
+            "contract": "Salary",
+            "src": "contracts/Salary.sol:24"
+          },
+          {
+            "label": "amountEmployee",
+            "offset": 0,
+            "slot": "265",
+            "type": "t_uint256",
+            "contract": "Salary",
+            "src": "contracts/Salary.sol:25"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_struct(CheckInDay)3124_storage)": {
+            "label": "mapping(address => struct Structs.CheckInDay)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Employee)3101_storage)": {
+            "label": "mapping(address => struct Structs.Employee)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_struct(CheckInDay)3124_storage))": {
+            "label": "mapping(uint256 => mapping(address => struct Structs.CheckInDay))",
+            "numberOfBytes": "32"
+          },
+          "t_struct(CheckInDay)3124_storage": {
+            "label": "struct Structs.CheckInDay",
+            "members": [
+              {
+                "label": "checkInFlag",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "workingDays",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "salary",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "claimed",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(Employee)3101_storage": {
+            "label": "struct Structs.Employee",
+            "members": [
+              {
+                "label": "managerAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "salary",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "joinDate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(TimeConfig)3115_storage": {
+            "label": "struct Structs.TimeConfig",
+            "members": [
+              {
+                "label": "hour",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "minute",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "second",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "buffer",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}
