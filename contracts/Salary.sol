@@ -72,7 +72,7 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
     uint256 checkInTime = block.timestamp;
     require(_employee[employeeAddress].salary != 0, 'Employee does not exist');
     uint256 weekDay = getWeekday(checkInTime);
-    require(weekDay != 1 && weekDay != 7, 'Weekend is not allowed');
+    require(weekDay != 0 && weekDay != 6, 'Weekend is not allowed');
     uint256 checkIn = uint256(getHour(checkInTime)) * 60 * 60 + uint256(getMinute(checkInTime)) * 60 + uint256(getSecond(checkInTime));
     require(
       checkIn >= checkInConfig.hour * 60 * 60 + checkInConfig.minute * 60 + checkInConfig.second - checkInConfig.buffer &&
@@ -85,6 +85,9 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
     uint256 key = year * 100 + month;
 
     CheckInDay storage checkInDay = _checkinInfo[key][employeeAddress];
+    if (checkInDay.workingDays == 0) {
+      checkInDay.salary = _employee[employeeAddress].salary;
+    }
     checkInDay.checkInFlag = true;
 
     emit CheckIn(employeeAddress, checkInTime);
@@ -95,8 +98,8 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
     uint256 checkOutTime = block.timestamp;
     require(_employee[employeeAddress].salary != 0, 'Employee does not exist');
     uint256 weekDay = getWeekday(checkOutTime);
-    require(weekDay != 1 && weekDay != 7, 'Weekend is not allowed');
-    uint256 checkOut = getHour(checkOutTime) * 60 * 60 + getMinute(checkOutTime) * 60 + getSecond(checkOutTime);
+    require(weekDay != 0 && weekDay != 6, 'Weekend is not allowed');
+    uint256 checkOut = uint256(getHour(checkOutTime)) * 60 * 60 + uint256(getMinute(checkOutTime)) * 60 + uint256(getSecond(checkOutTime));
     require(
       checkOut >= checkOutConfig.hour * 60 * 60 + checkOutConfig.minute * 60 + checkOutConfig.second &&
         checkOut <= checkOutConfig.hour * 60 * 60 + checkOutConfig.minute * 60 + checkOutConfig.second + checkOutConfig.buffer,
@@ -108,10 +111,9 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
     uint256 key = year * 100 + month;
 
     CheckInDay storage checkInDay = _checkinInfo[key][employeeAddress];
+
+    require(checkInDay.checkInFlag, 'Check in first');
     checkInDay.checkInFlag = false;
-    if (checkInDay.workingDays == 0) {
-      checkInDay.salary = _employee[employeeAddress].salary;
-    }
     checkInDay.workingDays += 1;
 
     emit CheckOut(employeeAddress, checkOutTime);
@@ -190,7 +192,7 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
     require(_employee[employeeAddress].salary != 0, 'Employee does not exist');
     require(month > 0 && month < 13, 'Invalid month');
 
-    require(month + year * 100 <= getMonth(timeClaim) + getYear(timeClaim) * 100, 'Can not claim salary for future month');
+    require(uint256(getMonth(timeClaim)) + uint256(getYear(timeClaim)) * 100 > month + year * 100, 'Can not claim salary for future month');
 
     uint256 key = year * 100 + month;
     require(_checkinInfo[key][employeeAddress].workingDays > 0, 'No working days');

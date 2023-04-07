@@ -3,14 +3,14 @@
   "proxies": [
     {
       "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0xd2fab219868bf7ac6496fef7541b6d82d013b1f72c096c50030aabc3dff424b3",
+      "txHash": "0x67420411b5a4e2a26109b98e7c6332a97db58f2d4cd57c7365f4c8b1f8afe1f3",
       "kind": "uups"
     }
   ],
   "impls": {
-    "916593da7f75953483b2d81963099acdf7e5c2833f905545b336f5b04d441445": {
+    "7b5b1e52ffe1d3346b89986e16a7426b06b66ad94f87f81f504c017ea31601ed": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x2583b68ceb5569ea1c4a5395486b6862a665ccf4c382303506a38c90712a66b5",
+      "txHash": "0x65542221d025523987b87c41b393d7a1d448d01b87f2ac0f5765be06a92eea45",
       "layout": {
         "solcVersion": "0.8.9",
         "storage": [
@@ -99,7 +99,7 @@
             "label": "_employee",
             "offset": 0,
             "slot": "252",
-            "type": "t_mapping(t_address,t_struct(Employee)3101_storage)",
+            "type": "t_mapping(t_address,t_struct(Employee)3122_storage)",
             "contract": "Salary",
             "src": "contracts/Salary.sol:18"
           },
@@ -107,7 +107,7 @@
             "label": "_checkinInfo",
             "offset": 0,
             "slot": "253",
-            "type": "t_mapping(t_uint256,t_mapping(t_address,t_struct(CheckInDay)3124_storage))",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_struct(CheckInDay)3145_storage))",
             "contract": "Salary",
             "src": "contracts/Salary.sol:19"
           },
@@ -131,7 +131,7 @@
             "label": "checkInConfig",
             "offset": 0,
             "slot": "256",
-            "type": "t_struct(TimeConfig)3115_storage",
+            "type": "t_struct(TimeConfig)3136_storage",
             "contract": "Salary",
             "src": "contracts/Salary.sol:22"
           },
@@ -139,7 +139,7 @@
             "label": "checkOutConfig",
             "offset": 0,
             "slot": "260",
-            "type": "t_struct(TimeConfig)3115_storage",
+            "type": "t_struct(TimeConfig)3136_storage",
             "contract": "Salary",
             "src": "contracts/Salary.sol:23"
           },
@@ -177,19 +177,19 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_mapping(t_address,t_struct(CheckInDay)3124_storage)": {
+          "t_mapping(t_address,t_struct(CheckInDay)3145_storage)": {
             "label": "mapping(address => struct Structs.CheckInDay)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_struct(Employee)3101_storage)": {
+          "t_mapping(t_address,t_struct(Employee)3122_storage)": {
             "label": "mapping(address => struct Structs.Employee)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_mapping(t_address,t_struct(CheckInDay)3124_storage))": {
+          "t_mapping(t_uint256,t_mapping(t_address,t_struct(CheckInDay)3145_storage))": {
             "label": "mapping(uint256 => mapping(address => struct Structs.CheckInDay))",
             "numberOfBytes": "32"
           },
-          "t_struct(CheckInDay)3124_storage": {
+          "t_struct(CheckInDay)3145_storage": {
             "label": "struct Structs.CheckInDay",
             "members": [
               {
@@ -219,7 +219,7 @@
             ],
             "numberOfBytes": "128"
           },
-          "t_struct(Employee)3101_storage": {
+          "t_struct(Employee)3122_storage": {
             "label": "struct Structs.Employee",
             "members": [
               {
@@ -243,7 +243,7 @@
             ],
             "numberOfBytes": "96"
           },
-          "t_struct(TimeConfig)3115_storage": {
+          "t_struct(TimeConfig)3136_storage": {
             "label": "struct Structs.TimeConfig",
             "members": [
               {

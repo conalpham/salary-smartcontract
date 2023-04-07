@@ -16,12 +16,12 @@ contract DateTime {
     uint8 weekday;
   }
 
-  uint256 constant DAY_IN_SECONDS = 86400;
-  uint256 constant YEAR_IN_SECONDS = 31536000;
-  uint256 constant LEAP_YEAR_IN_SECONDS = 31622400;
+  uint256 constant DAY_IN_SECONDS = 86400000;
+  uint256 constant YEAR_IN_SECONDS = 31536000000;
+  uint256 constant LEAP_YEAR_IN_SECONDS = 31622400000;
 
-  uint256 constant HOUR_IN_SECONDS = 3600;
-  uint256 constant MINUTE_IN_SECONDS = 60;
+  uint256 constant HOUR_IN_SECONDS = 3600000;
+  uint256 constant MINUTE_IN_SECONDS = 60000;
 
   uint16 constant ORIGIN_YEAR = 1970;
 
@@ -132,15 +132,15 @@ contract DateTime {
   }
 
   function getHour(uint256 timestamp) public pure returns (uint8) {
-    return uint8((timestamp / 60 / 60) % 24);
+    return uint8((timestamp / 60 / 60 / 1000) % 24);
   }
 
   function getMinute(uint256 timestamp) public pure returns (uint8) {
-    return uint8((timestamp / 60) % 60);
+    return uint8((timestamp / 60 / 1000) % 60);
   }
 
   function getSecond(uint256 timestamp) public pure returns (uint8) {
-    return uint8(timestamp % 60);
+    return uint8((timestamp / 1000) % 60);
   }
 
   function getWeekday(uint256 timestamp) public pure returns (uint8) {
