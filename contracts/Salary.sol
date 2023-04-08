@@ -5,12 +5,15 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 
 import './common/Structs.sol';
 import './external/DateTime.sol';
 import './external/SafeMathX.sol';
 
 contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
+  using SafeERC20Upgradeable for IERC20Upgradeable;
   using SafeMathX for uint256;
   using SafeMathUpgradeable for uint256;
 
@@ -23,13 +26,14 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
   TimeConfig public checkOutConfig;
   uint256 public maxChangeWorkkingDays;
   uint256 public amountEmployee;
+  address public tokenAddress;
 
   event CheckIn(address indexed employeeAddress, uint256 indexed timestamp);
   event CheckOut(address indexed employeeAddress, uint256 indexed timestamp);
   event ClaimSalary(address indexed employeeAddress, uint256 month, uint256 year, uint256 amount, uint256 indexed timestamp);
   event AddFund(uint256 indexed amount);
+  event WithdrawFund(uint256 indexed amount);
   event AddEmployee(address indexed employeeAddress, address managerAddress, uint256 indexed salary);
-  event UpdateEmployee(address indexed employeeAddress, uint256 indexed salary);
   event ChangePaymentAddress(address indexed _employeeAddress, address indexed _newAddress);
   event RemoveEmployee(address indexed employeeAddress);
   event ChangeWorkingDays(address indexed changedBy, address indexed employeeAddress, uint256 indexed workingDays);
@@ -49,7 +53,8 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
     address _admin,
     uint256 _maxChangeWorkingDays,
     TimeConfig calldata _checkInConfig,
-    TimeConfig calldata _checkOutConfig
+    TimeConfig calldata _checkOutConfig,
+    address _tokenAddress
   ) external initializer {
     __Pausable_init();
     __ReentrancyGuard_init();
@@ -58,14 +63,10 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
     maxChangeWorkkingDays = _maxChangeWorkingDays;
     checkInConfig = _checkInConfig;
     checkOutConfig = _checkOutConfig;
+    tokenAddress = _tokenAddress;
   }
 
   function _authorizeUpgrade(address) internal override onlyAdmin {}
-
-  function test() external view returns (uint256) {
-    uint256 checkInTime = block.timestamp;
-    return uint256(getHour(checkInTime)) * 60 * 60 + uint256(getMinute(checkInTime)) * 60 + uint256(getSecond(checkInTime));
-  }
 
   function checkIn() external whenNotPaused nonReentrant {
     address employeeAddress = msg.sender;
@@ -198,9 +199,9 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
     require(_checkinInfo[key][employeeAddress].workingDays > 0, 'No working days');
     require(_checkinInfo[key][employeeAddress].claimed == false, 'Already claimed');
     uint256 payment = _checkinInfo[key][employeeAddress].salary * _checkinInfo[key][employeeAddress].workingDays;
-    require(address(this).balance >= payment, 'Not enough fund');
+    require(IERC20Upgradeable(tokenAddress).balanceOf(address(this)) >= payment, 'Not enough fund');
     _checkinInfo[key][employeeAddress].claimed = true;
-    payable(employeeAddress).transfer(payment);
+    IERC20Upgradeable(tokenAddress).transfer(employeeAddress, payment);
 
     emit ClaimSalary(employeeAddress, month, year, payment, timeClaim);
   }
@@ -213,10 +214,14 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
     _unpause();
   }
 
-  function addFund() external payable onlyAdmin {
-    require(msg.value > 0, 'No fund added');
+  function addFund(uint256 _amount) external onlyAdmin {
+    IERC20Upgradeable(tokenAddress).transferFrom(msg.sender, address(this), _amount);
+    emit AddFund(_amount);
+  }
 
-    emit AddFund(msg.value);
+  function withdrawFund(uint256 _amount) external onlyAdmin {
+    IERC20Upgradeable(tokenAddress).transfer(msg.sender, _amount);
+    emit WithdrawFund(_amount);
   }
 
   function changeAdmin(address _admin) external onlyAdmin {
@@ -331,6 +336,6 @@ contract Salary is DateTime, Structs, PausableUpgradeable, ReentrancyGuardUpgrad
     uint256 year = getYear(block.timestamp);
     uint256 key = year * 100 + month;
     uint256 payment = _checkinInfo[key][_employeeAddress].salary * _checkinInfo[key][_employeeAddress].workingDays;
-    payable(_employeeAddress).transfer(payment);
+    IERC20Upgradeable(tokenAddress).transfer(_employeeAddress, payment);
   }
 }

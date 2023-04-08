@@ -6,8 +6,7 @@ import { expect } from 'chai';
 import { loadFixture, time } from '@nomicfoundation/hardhat-network-helpers';
 import dayjs from 'dayjs';
 import { BigNumber, ContractTransaction } from 'ethers';
-import { token } from 'typechain/@openzeppelin/contracts';
-import { Salary } from '../typechain';
+import { Salary, TooUpToken } from 'typechain-types';
 
 const MAX_CHANGE_WORKING_DAYS = 10;
 const CHECK_IN_TIME_CONFIG = {
@@ -33,16 +32,20 @@ describe('Salary', () => {
   let manager2: SignerWithAddress;
 
   async function deployFixtures() {
+    const TokenFactory = await ethers.getContractFactory('TooUpToken');
+    const token = (await TokenFactory.deploy('Too Up Coin', 'TUC', '1000000000', admin.address)) as TooUpToken;
+
     const SalaryFactory = await ethers.getContractFactory('Salary');
     const salary = (await upgrades.deployProxy(SalaryFactory, [
       admin.address,
       MAX_CHANGE_WORKING_DAYS,
       CHECK_IN_TIME_CONFIG,
       CHECK_OUT_TIME_CONFIG,
+      token.address,
     ])) as Salary;
-    await Promise.all([salary.deployed()]);
+    await Promise.all([salary.deployed(), token.deployed()]);
 
-    return { salary };
+    return { salary, token };
   }
   beforeEach(async () => {
     [admin, employees1, manager1, employees2, manager2] = await ethers.getSigners();
@@ -72,8 +75,32 @@ describe('Salary', () => {
   });
 
   it('Should remove employee', async () => {
-    const { salary } = await loadFixture(deployFixtures);
+    const { salary, token } = await loadFixture(deployFixtures);
     await salary.addEmployee(employees1.address, manager1.address, 100);
+
+    const checkInTime = dayjs(new Date())
+      .add(7, 'day')
+      .day(1)
+      .hour(CHECK_IN_TIME_CONFIG.hour + GMT)
+      .minute(CHECK_IN_TIME_CONFIG.minute)
+      .second(CHECK_IN_TIME_CONFIG.second);
+    const checkOutTime = dayjs(new Date())
+      .add(7, 'day')
+      .day(1)
+      .hour(CHECK_OUT_TIME_CONFIG.hour + GMT)
+      .minute(CHECK_OUT_TIME_CONFIG.minute)
+      .second(CHECK_OUT_TIME_CONFIG.second);
+
+    await time.increaseTo(checkInTime.valueOf());
+    await salary.connect(employees1).checkIn();
+
+    await time.increaseTo(checkOutTime.valueOf());
+    await salary.connect(employees1).checkOut();
+
+    await expect(salary.removeEmployee(employees1.address)).to.be.revertedWith('ERC20: transfer amount exceeds balance');
+
+    await token.approve(salary.address, 100);
+    await expect(salary.addFund(100)).to.emit(salary, 'AddFund').withArgs(100);
     await expect(salary.removeEmployee(employees1.address)).to.emit(salary, 'RemoveEmployee').withArgs(employees1.address);
 
     await expect(salary.connect(employees1).removeEmployee(employees1.address)).to.be.revertedWith('Only admin can call this function');
@@ -363,7 +390,7 @@ describe('Salary', () => {
   });
 
   it('Should get paid correct in happy case', async () => {
-    const { salary } = await loadFixture(deployFixtures);
+    const { salary, token } = await loadFixture(deployFixtures);
     await salary.addEmployee(employees1.address, manager1.address, 100);
 
     let checkInTime = dayjs(new Date())
@@ -398,9 +425,10 @@ describe('Salary', () => {
 
     await time.increaseTo(checkInTime.add(1, 'month').valueOf());
 
-    const balanceNativeBefore = await ethers.provider.getBalance(employees1.address);
+    const balanceBefore = await token.balanceOf(employees1.address);
 
-    await expect(salary.addFund({ value: workingDay * 100 }))
+    await token.approve(salary.address, workingDay * 100);
+    await expect(salary.addFund(workingDay * 100))
       .to.emit(salary, 'AddFund')
       .withArgs(workingDay * 100);
 
@@ -414,10 +442,8 @@ describe('Salary', () => {
     expect(event?.args?.amount).to.eq(workingDay * 100);
     expect(event?.args?.timestamp).to.eq(await time.latest());
 
-    const balanceNativeAfter = await ethers.provider.getBalance(employees1.address);
-    expect(balanceNativeAfter).to.eq(
-      balanceNativeBefore.sub(txReceipt.effectiveGasPrice.mul(txReceipt.cumulativeGasUsed)).add(BigNumber.from(workingDay * 100))
-    );
+    const balanceAfter = await token.balanceOf(employees1.address);
+    expect(balanceAfter).to.eq(balanceBefore.add(BigNumber.from(workingDay * 100)));
 
     const checkInInfo = await salary.getCheckInInfo(employees1.address, month, year);
     expect(checkInInfo[0]).to.equal(false);
@@ -426,5 +452,74 @@ describe('Salary', () => {
     expect(checkInInfo[3]).to.equal(true);
 
     await expect(salary.connect(employees1).getPaid(month, year)).to.rejectedWith('Already claimed');
+  });
+
+  it('Should get paid correct in happy case with multiple employees', async () => {
+    const { salary, token } = await loadFixture(deployFixtures);
+    await salary.addEmployee(employees1.address, manager1.address, 100);
+    await salary.addEmployee(employees2.address, manager1.address, 100);
+
+    let checkInTime = dayjs(new Date())
+      .add(7, 'day')
+      .day(1)
+      .hour(CHECK_IN_TIME_CONFIG.hour + GMT)
+      .minute(CHECK_IN_TIME_CONFIG.minute)
+      .second(CHECK_IN_TIME_CONFIG.second);
+    let checkOutTime = dayjs(new Date())
+      .add(7, 'day')
+      .day(1)
+      .hour(CHECK_OUT_TIME_CONFIG.hour + GMT)
+      .minute(CHECK_OUT_TIME_CONFIG.minute)
+      .second(CHECK_OUT_TIME_CONFIG.second);
+    const month = checkInTime.month() + 1;
+    const year = checkInTime.year();
+
+    const expectWorkingDays = checkInTime.daysInMonth() - checkInTime.date() + 1;
+    let workingDay = 0;
+    for (let i = 0; i < expectWorkingDays; i += 1) {
+      if (checkInTime.day() !== 0 && checkInTime.day() !== 6) {
+        await time.increaseTo(checkInTime.valueOf());
+        await salary.connect(employees1).checkIn();
+        await salary.connect(employees2).checkIn();
+
+        await time.increaseTo(checkOutTime.valueOf());
+        await salary.connect(employees1).checkOut();
+        await salary.connect(employees2).checkOut();
+        workingDay += 1;
+      }
+      checkInTime = checkInTime.add(1, 'day');
+      checkOutTime = checkOutTime.add(1, 'day');
+    }
+
+    await time.increaseTo(checkInTime.add(1, 'month').valueOf());
+
+    const balanceBefore1 = await token.balanceOf(employees1.address);
+    const balanceBefore2 = await token.balanceOf(employees2.address);
+
+    await token.approve(salary.address, workingDay * 100 * 2);
+    await expect(salary.addFund(workingDay * 100 * 2))
+      .to.emit(salary, 'AddFund')
+      .withArgs(workingDay * 100 * 2);
+
+    await salary.connect(employees1).getPaid(month, year);
+    await salary.connect(employees2).getPaid(month, year);
+
+    const balanceAfter1 = await token.balanceOf(employees1.address);
+    const balanceAfter2 = await token.balanceOf(employees2.address);
+    expect(balanceAfter1).to.eq(balanceBefore1.add(BigNumber.from(workingDay * 100)));
+    expect(balanceAfter2).to.eq(balanceBefore2.add(BigNumber.from(workingDay * 100)));
+  });
+
+  it('Should withdraw fund correctly', async () => {
+    const { salary, token } = await loadFixture(deployFixtures);
+
+    await token.approve(salary.address, 1000);
+    await salary.addFund(1000);
+
+    const balanceBefore = await token.balanceOf(admin.address);
+    await salary.withdrawFund(100);
+
+    const balanceAfter = await token.balanceOf(admin.address);
+    expect(balanceAfter).to.eq(balanceBefore.add(BigNumber.from(100)));
   });
 });

@@ -1,93 +1,86 @@
 import * as dotenv from 'dotenv';
-
 import { HardhatUserConfig } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
-import '@nomiclabs/hardhat-ethers';
-import '@nomiclabs/hardhat-etherscan';
-import '@nomiclabs/hardhat-waffle';
-import '@typechain/hardhat';
-import 'solidity-coverage';
-import 'hardhat-deploy';
-import 'hardhat-gas-reporter';
+import 'hardhat-docgen';
 import 'hardhat-contract-sizer';
+import 'hardhat-spdx-license-identifier';
+import 'hardhat-tracer';
 import 'hardhat-abi-exporter';
 import '@openzeppelin/hardhat-upgrades';
 
 dotenv.config();
 
-const MAINNET_RPC_URL = process.env.ALCHEMY_MAINNET_RPC_URL || 'https://eth-mainnet.alchemyapi.io/v2/your-api-key';
-const { FORKING_BLOCK_NUMBER } = process.env;
-const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL || 'https://eth-rinkeby.alchemyapi.io/v2/your-api-key';
-const KOVAN_RPC_URL = process.env.KOVAN_RPC_URL || 'https://eth-kovan.alchemyapi.io/v2/your-api-key';
-
-// Your API key for Etherscan, obtain one at https://etherscan.io/
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || 'Your etherscan API key';
-const MNEMONIC = process.env.MNEMONIC || 'Your mnemonic';
 const config: HardhatUserConfig = {
-  solidity: {
-    version: '0.8.9',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
-      },
-    },
-  },
-  defaultNetwork: 'hardhat',
-  networks: {
-    localhost: {
-      chainId: 31337,
-    },
-    hardhat: {
-      // If you want to do some forking set `enabled` to true
-      forking: {
-        url: MAINNET_RPC_URL,
-        blockNumber: Number(FORKING_BLOCK_NUMBER),
-        enabled: false,
-      },
-      chainId: 31337,
-    },
-    kovan: {
-      url: KOVAN_RPC_URL,
-      // accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-      accounts: {
-        mnemonic: MNEMONIC,
-      },
-      chainId: 42,
-    },
-    rinkeby: {
-      url: RINKEBY_RPC_URL,
-      // accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
-      accounts: {
-        mnemonic: MNEMONIC,
-      },
-      chainId: 4,
-    },
-  },
-  etherscan: {
-    // yarn hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
-    apiKey: {
-      rinkeby: ETHERSCAN_API_KEY,
-      kovan: ETHERSCAN_API_KEY,
-    },
-  },
-  gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
-    currency: 'USD',
-    // outputFile: 'gas-report.txt',
-    noColors: true,
-    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+  docgen: {
+    path: './docs',
+    clear: true,
+    runOnCompile: false,
   },
   contractSizer: {
     runOnCompile: false,
-    only: ['APIConsumer', 'KeepersCounter', 'PriceConsumerV3', 'RandomNumberConsumer'],
+    strict: true,
   },
-  mocha: {
-    timeout: 200000, // 200 seconds max for running tests
+  spdxLicenseIdentifier: {
+    runOnCompile: false,
   },
-  typechain: {
-    outDir: 'typechain',
-    target: 'ethers-v5',
+  gasReporter: {
+    enabled: process.env.REPORT_GAS !== undefined ? process.env.REPORT_GAS.toLowerCase() === 'true' : false,
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY || '',
+    gasPriceApi: process.env.GAS_PRICE_API || '',
+    token: 'ETH',
+    currency: 'USD',
+  },
+  abiExporter: {
+    runOnCompile: false,
+    path: './abi',
+    clear: true,
+    pretty: true,
+  },
+  solidity: {
+    compilers: [
+      {
+        version: '0.8.13',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 4000,
+          },
+        },
+      },
+    ],
+  },
+  networks: {
+    hardhat: {
+      allowUnlimitedContractSize:
+        (process.env.ALLOW_UNLIMITED_CONTRACT_SIZE && process.env.ALLOW_UNLIMITED_CONTRACT_SIZE.toLowerCase() === 'true') || false,
+    },
+    testnet: {
+      allowUnlimitedContractSize:
+        (process.env.ALLOW_UNLIMITED_CONTRACT_SIZE && process.env.ALLOW_UNLIMITED_CONTRACT_SIZE.toLowerCase() === 'true') || false,
+      url: 'http://localhost:8545',
+    },
+    bsc: {
+      accounts: [(process.env.DEPLOYER_WALLET_PRIVATE_KEY as string) || ''],
+      url: 'https://bsc-dataseed1.binance.org/',
+    },
+    bscTestnet: {
+      accounts: [(process.env.DEPLOYER_WALLET_PRIVATE_KEY as string) || ''],
+      url: 'https://nodes.3swallet.io/testnet/bnb',
+    },
+    polygonTestnet: {
+      accounts: [(process.env.DEPLOYER_WALLET_PRIVATE_KEY as string) || ''],
+      url: 'https://polygon-mumbai.g.alchemy.com/v2/6OxQxYU1tfPztt7kE72YcSdnzZppggaL',
+    },
+    arbitrumTestnet: {
+      accounts: [(process.env.DEPLOYER_WALLET_PRIVATE_KEY as string) || ''],
+      url: 'https://arb-goerli.g.alchemy.com/v2/lI9ZVZfd1iTAlc-sYsdASQzd9ehZiFqU',
+    },
+  },
+  etherscan: {
+    apiKey: {
+      bscTestnet: process.env.BSCSCAN_API_KEY || '',
+      bsc: process.env.BSCSCAN_API_KEY || '',
+    },
   },
 };
 
